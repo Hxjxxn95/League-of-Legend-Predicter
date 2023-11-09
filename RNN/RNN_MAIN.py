@@ -5,6 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from tqdm import tqdm
+from sklearn.metrics import classification_report
+from pprint import pprint
 
 torch.manual_seed(0)
 
@@ -16,17 +18,26 @@ data_dim = 70 # feature 갯수
 hidden_dim = 20 # 은닉층 길이
 output_dim = 1 # true/false
 learning_rate = 0.0001
-iterations = 10000000
+iterations = 100
 
-testX = np.load('/RNN/testX.npy')
-testY = np.load('/RNN/testY.npy')
-trainX = np.load('/RNN/trainX.npy')
-trainY = np.load('/RNN/trainY.npy')
+testX = np.load('RNN/testX.npy')
+testY = np.load('RNN/testY.npy')
+trainX = np.load('RNN/trainX.npy')
+trainY = np.load('RNN/trainY.npy')
+
+testX = testX[:,:-20,:]
+
+
 
 trainX_tensor = torch.FloatTensor(trainX)
 trainY_tensor = torch.FloatTensor(trainY)
 testX_tensor = torch.FloatTensor(testX)
 testY_tensor = torch.FloatTensor(testY)
+
+print(trainX_tensor.shape)
+print(trainY_tensor.shape)
+print(testX_tensor.shape)
+print(testY_tensor.shape)
 
 class Net(torch.nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, layers):
@@ -61,9 +72,6 @@ for i in range(len(predY)):
     else:
         predY[i] = 0
         
-
-correct = int(sum(predY == testY_tensor.flatten()))
-total = len(predY)
-print("Total: ", total)
-print("Correct: ", correct)
-print("Accuracy: ", correct/total*100, "%")
+testY_tensor = testY_tensor.numpy().astype(int).tolist()
+result= classification_report(testY_tensor, predY, output_dict=True) 
+pprint(result)

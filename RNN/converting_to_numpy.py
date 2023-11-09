@@ -18,13 +18,13 @@ def converting(timestamp):
     for i in tqdm(range(index)):
         
         temp = df[0].loc[[i]].copy()
-        
+        temp2 = temp.copy()
         for j in range(1, timestamp):
             
             temp = pd.concat([temp, df[j].loc[[i]]], axis=0)
         
         data_x.append(temp.loc[:, temp.columns != 'blueWins'].to_numpy())
-        data_y.append(temp['blueWins'].to_numpy())
+        data_y.append(temp2['blueWins'].to_numpy())
     
     data_x = np.array(data_x)
     data_y = np.array(data_y)
@@ -46,13 +46,13 @@ def converting(timestamp):
     for i in tqdm(range(index)):
         
         temp = df[0].loc[[i]].copy()
-        
+        temp2 = temp.copy()
         for j in range(1, timestamp):
             
             temp = pd.concat([temp, df[j].loc[[i]]], axis=0)
         
         data_x.append(temp.loc[:, temp.columns != 'blueWins'].to_numpy())
-        data_y.append(temp['blueWins'].to_numpy())
+        data_y.append(temp2['blueWins'].to_numpy())
     
     data_x = np.array(data_x)
     data_y = np.array(data_y)
