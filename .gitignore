@@ -4,3 +4,4 @@
 /RNN/trainY.npy
 /.tmp.drivedownload
 /.tmp.driveupload
+.DS_Store
