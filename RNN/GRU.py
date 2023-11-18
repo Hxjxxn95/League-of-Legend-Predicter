@@ -13,21 +13,16 @@ torch.manual_seed(0)
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(device)
 
-
 data_dim = 70 # feature 갯수
-hidden_dim = 23 # 은닉층 길이
+hidden_dim = 12 # 은닉층 길이
 output_dim = 1 # true/false
-learning_rate = 0.0001
-iterations = 100
+learning_rate = 0.001
+iterations = 5
 
 testX = np.load('RNN/testX.npy')
 testY = np.load('RNN/testY.npy')
 trainX = np.load('RNN/trainX.npy')
 trainY = np.load('RNN/trainY.npy')
-
-testX = testX[:,:-20,:]
-
-
 
 trainX_tensor = torch.FloatTensor(trainX)
 trainY_tensor = torch.FloatTensor(trainY)
@@ -42,7 +37,7 @@ print(testY_tensor.shape)
 class Net(torch.nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, layers):
         super(Net, self).__init__()
-        self.rnn = torch.nn.LSTM(input_dim, hidden_dim, num_layers=layers, batch_first=True)
+        self.rnn = torch.nn.GRU(input_dim, hidden_dim, num_layers=layers, batch_first=True)
         self.fc = torch.nn.Linear(hidden_dim, output_dim, bias=True)
 
     def forward(self, x):
@@ -53,8 +48,7 @@ class Net(torch.nn.Module):
     
 net = Net(data_dim, hidden_dim, output_dim, 1).to(device)
 criterion = torch.nn.BCELoss().to(device)
-optimizer = optim.Adam(net.parameters(), lr=learning_rate)
-
+optimizer = optim.Adam(net.parameters(), lr=learning_rate) # Adam optimizer 사용
 best_loss = float('inf')
 
 
@@ -81,3 +75,4 @@ for i in range(len(predY)):
 testY_tensor = testY_tensor.numpy().astype(int).tolist()
 result= classification_report(testY_tensor, predY, output_dict=True) 
 pprint(result)
+
