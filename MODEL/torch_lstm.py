@@ -61,15 +61,15 @@ for i in tqdm(range(iterations)):
     loss.backward()
     optimizer.step()
     
-    # if i % 100 == 0:
-    #     print(i, loss.item())
-    #     best_loss = loss.item()
-    #     torch.save(net, 'MODEL/best_model.pth')
+    if i % 100 == 0:
+        print(i, loss.item())
+        best_loss = loss.item()
+        torch.save(net, 'MODEL/best_model.pth')
 
 
 predY = net(testX_tensor.to(device)).to('cpu').data.numpy()
 
-print()
+
 for i in range(len(predY)):
     if predY[i] > 0.5:
         predY[i] = 1
@@ -81,3 +81,19 @@ result= classification_report(testY_tensor, predY, output_dict=True)
 result = pd.DataFrame(result)
 pprint(result)
 
+
+
+# predic_list = []
+# net.eval()
+# for i in range(1,26):
+#     temp = testX[5:6, 0:i, :]
+#     testX_tensor = torch.FloatTensor(temp)
+#     predic = net(testX_tensor.to(device)).item()
+#     predic_list.append(predic)
+# print(predic_list)
+# plt.figure(figsize=(12, 6))
+# plt.plot(range(1,26), predic_list, 'o-', label='Blue Win', color='blue')
+# plt.plot(range(1,26), [1 - x for x in predic_list], 'o-', label='Red Win', color='red')
+# plt.ylim(0, 1)
+# plt.legend()
+# plt.show()
