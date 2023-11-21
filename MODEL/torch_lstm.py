@@ -36,9 +36,9 @@ print(trainY_tensor.shape)
 print(testX_tensor.shape)
 print(testY_tensor.shape)
 
-class Net(torch.nn.Module):
+class LSTM(torch.nn.Module):
     def __init__(self, input_dim, hidden_dim, output_dim, layers):
-        super(Net, self).__init__()
+        super(LSTM, self).__init__()
         self.lstm = torch.nn.LSTM(input_dim, hidden_dim, num_layers=layers, batch_first=True)
         self.fc = torch.nn.Linear(hidden_dim, output_dim, bias=True)
 
@@ -48,7 +48,7 @@ class Net(torch.nn.Module):
         x = torch.sigmoid(x)
         return x
     
-net = Net(data_dim, hidden_dim, output_dim, 1).to(device)
+net = LSTM(data_dim, hidden_dim, output_dim, 1).to(device)
 criterion = torch.nn.BCELoss().to(device)
 optimizer = optim.Adam(net.parameters(), lr=learning_rate)
 best_loss = float('inf')
@@ -67,20 +67,12 @@ for i in tqdm(range(iterations)):
         torch.save(net, 'MODEL/best_model.pth')
 
 
-predY = net(testX_tensor.to(device)).to('cpu').data.numpy()
+net.eval()
+with torch.no_grad():
+    outputs = net(testX_tensor)
+    predicted_labels = (outputs >= 0.5).float()
 
-
-for i in range(len(predY)):
-    if predY[i] > 0.5:
-        predY[i] = 1
-    else:
-        predY[i] = 0
-        
-testY_tensor = testY_tensor.numpy().astype(int).tolist()
-result= classification_report(testY_tensor, predY, output_dict=True)
-result = pd.DataFrame(result)
-pprint(result)
-
+print(classification_report(testY_tensor.device(), predicted_labels.device()))
 
 
 # predic_list = []
