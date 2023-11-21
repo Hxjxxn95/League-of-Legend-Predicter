@@ -15,15 +15,19 @@
 - 이번 모델에서 쓰이는 데이터는 롤의 랭크 게임 상위 유저의 게임을 약 10000게임 정도 받아와 분석을 하는 것입니다.
 - API는 게임의 정보를 알기 위해서는 [상위 유저 닉네임](https://developer.riotgames.com/apis#league-v4)을 가져온 뒤[Summoner ID](https://developer.riotgames.com/apis#summoner-v4) 를 확보하고 summoner ID 를 통해 [puuid](https://developer.riotgames.com/apis#summoner-v4/GET_getBySummonerName) 를 가져온 뒤에 [Match ID](https://developer.riotgames.com/apis#match-v5) 를 puuid에 해당하는 유저의 최근 매치 100개까지 match ID 를 가져올 수 있습니다.
 - API 사용시 1초에 최대 20개, 2분에 최대 100개의 데이터를 요청 할 수 있으며 API KEY 는 24시간 뒤 만료되기 때문에 재발급을 받아야 합니다.
+    <center>
+    < Table 1 >
+    </center>
 
     |사용안 한 데이터| | | | |
     |---------------|----------------|--------------|----------------------|----------------------------|
     | blueTotalGolds| blueTotalLevel | blueAvgLevel | blueTotalMinionKills | blueTotalJungleMinionKills |
     | redTotalGolds | redAvgLevel | redTotalMinionKills | redTotalJungleMinionKills |
-    <center>
-    < Table 1 >
+    
+   <center>
+    < TABLE 2 >
     </center>
-   
+
     |사용한 데이터|||||
     |-----|-----|-----|-----|-----|
     | blueWins | blueCurrentGolds | blueFirstBlood | blueKill | blueDeath |
@@ -39,9 +43,7 @@
     | redFireDragon | redElderDragon | blueChamps0 | blueChamps1 | blueChamps2 |
     | blueChamps3 | blueChamps4 | redChamps0 | redChamps1 | redChamps2 |
     | redChamps3 | redChamps4 |
-    <center>
-    < TABLE 2 >
-    </center>
+    
     - TABLE 1 의 데이터는 RIOT API에서 제공 받을 수 있으나 학습에서 제외시킨 데이터입니다.
     - TABLE 2 에서 Current Gold에 해당하는 값은 누적된 골드량이 아닌 아이템을 사고 남은 골드의 합입니다.
 
@@ -53,15 +55,17 @@
 - 처음으로 사용한 모델은 LSTM 으로 시계열 데이터에 최적화된 모델입니다.
 이 모델에서는 7579 매치업 중 25분을 학습 시켰고, 테스트로 1895개의 게임으로 테스트를 진행했습니다. 
 
+    <center>
+    < TABLE 3 >
+    </center>
+
     |  Torch     | 0 | 1|  accuracy  |  macro avg | weighted avg|
     |-------|---|---|------------|-----------|-------------|
     |precision|0.76|0.76|0.76|0.76|0.76|
     |recall|0.77|0.74|0.76|0.76|0.76|
     |f1-score|0.77|0.75|0.76|0.76|0.76|
     |support|964|931|0.76|1895|1895|
-<center>
-    < TABLE 3 >
-    </center>
+
 
 - 이번 lstm 모델에서는 은닉층의 개수에 대해서 많이 영향을 받았습니다. 위에서 나타난 결과값은 1536개의 은닉층이였습니다. 은닉층의 개수를 늘릴 때마다 성능이 계속 소폭 향상이 되었었고, 제 컴퓨터에서 2048개에서는 컴퓨터의 물리적 한계로 인해 오류가 뜨며 실패했습니다.
     - (torch.cuda.OutOfMemoryError: CUDA out of memory. Tried to allocate 6.20 GiB. GPU 0 has a total capacty of 12.00 GiB of which 0 bytes is free. Of the allocated memory 12.12 GiB is allocated by PyTorch, and 3.18 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting max_split_size_mb to avoid fragmentation.  See documentation for Memory Management and PYTORCH_CUDA_ALLOC_CONF)
@@ -85,6 +89,10 @@
 ### CNN-LSTM
 - 두번째로 LSTM 성능 향상을 위해 CNN 모델과 결합한 CNN-LSTM 혼합모델로 성능 테스트를 해봤습니다. 
 
+    <center>
+    < TABLE 4 >
+    </center>
+
     | hidden_dim = 1536|precision|    recall|  f1-score  | support|
     |-|-|-|-|-|        
     |RedWin|       0.81 |     0.81|      0.81|   964 |        
@@ -94,7 +102,7 @@
    | weighted avg |     0.81     | 0.81     | 0.81|      1895|
 
     <center>
-    < TABLE 4 >
+    < TABLE 5 >
     </center>
 
    | hidden_dim = 1024|precision|    recall|  f1-score  | support|
@@ -104,13 +112,15 @@
     |accuracy |        |                  |0.81      |1895|  
     |macro avg |      0.81 |     0.81  |    0.81 |     1895|
    | weighted avg |     0.81     | 0.81     | 0.81|      1895|
-    <center>
-    < TABLE 5 >
-    </center>
+
     이번 테스트에서는 성능향상에 초점을 뒀습니다. TABLE 4, TABLE 5 는 모두 CNN-LSTM 테스트 테이블이고 은닉층에 대해서만 차이를 주고 그대로 테스트했습니다. 둘 다 모두 LSTM 모델보다 좀 더 좋은 성능을 보여줬으며, 은닉층이 작은 모델은 큰 모델과 비슷한 성능을 가지면서, 계산량이 더 적기에 훨씬 효율적인 모습을 보여줬습니다.( 은닉층 1536 일 때 걸린 시간 : 9분 12초, 은닉층 1024일 때 걸린 시간 2분 1초) 
 ### RandomForestClassiFier
 
 - 세번째로 RandomForestClassiFier 로 학습 시켜서 테스트 해봤습니다. 학습시킨 데이터의 shape 은 (7579,25,60) 이였기에 모델이 학습할 수 있도록 (7579,1500) 으로 변경하여 학습시켜 테스트를 진행했습니다.  
+
+    <center>
+    < TABLE 6 >
+    </center>
 
     |   |precision|recall|f1-score|support|
     |---|---------|------|--------|-------|
@@ -119,9 +129,7 @@
     |accuracy |    |    | 0.92  |    1895|
     | macro avg |      0.92 |     0.92 |     0.92 |     1895|
     |weighted avg     |  0.92     | 0.92    |  0.92     | 1895|
-    <center>
-    < TABLE 6 >
-    </center>
+
 - 성능은 lstm으로 학습 시킨 것보다 좀 더 준수한 성능을 가지고 있으나 RandomForestClassiFier는 시계열 데이터의 시간적 특성을 고려하지는 않습니다. 그렇기에 이 모델은 순수 데이터 분석용으로 사용된 것입니다.
 
 - 이 모델로 얻은 결과는 다음과 같습니다.
