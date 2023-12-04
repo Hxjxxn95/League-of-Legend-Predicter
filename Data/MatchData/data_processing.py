@@ -3,7 +3,7 @@ import numpy as np
 from tqdm import tqdm
 
 def processing(result):
-
+    result = result.drop(['gameId'], axis=1)
     result = result.drop(['redWins'], axis=1)
     result = result.replace({'blueWins': True}, {'blueWins': 1})
     result = result.replace({'blueWins': False}, {'blueWins': 0})
