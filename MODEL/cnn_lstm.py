@@ -18,10 +18,10 @@ output_dim = 1 # binary classification
 learning_rate = 0.0001
 epoch = 50
 
-trainX = np.load('trainX.npy')
-trainY = np.load('trainY.npy')
-testX = np.load('testX.npy')
-testY = np.load('testY.npy')
+trainX = np.load('MODEL/trainX.npy')
+trainY = np.load('MODEL/trainY.npy')
+testX = np.load('MODEL/testX.npy')
+testY = np.load('MODEL/testY.npy')
 
 
 val_ratio = 0.2
